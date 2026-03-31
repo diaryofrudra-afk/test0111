@@ -1,0 +1,14 @@
+
+✅ [System Lead] Ultimate Proxy Engine live on http://localhost:3000
+
+🚀 Starting 20-Agent Ultimate Proxy Engine...
+❌ Engine Crash: Error: Failed to launch the browser process! undefined
+[30968:259:0331/042409.046361:ERROR:process_singleton_posix.cc(335)] Failed to create /Users/rudra/Desktop/v0.1awspush/blackbuck-proxy/blackbuck-proxy/puppeteer_data/SingletonLock: File exists (17)
+[30968:259:0331/042409.048103:ERROR:chrome_main_delegate.cc(594)] Failed to create a ProcessSingleton for your profile directory. This means that running multiple instances would start multiple browser processes rather than opening a new window in the existing process. Aborting now to avoid profile corruption.
+
+
+TROUBLESHOOTING: https://pptr.dev/troubleshooting
+
+    at ChildProcess.onClose (/Users/rudra/Desktop/v0.1awspush/blackbuck-proxy/blackbuck-proxy/node_modules/@puppeteer/browsers/lib/cjs/launch.js:310:24)
+    at ChildProcess.emit (node:events:520:22)
+    at ChildProcess._handle.onexit (node:internal/child_process:294:12)

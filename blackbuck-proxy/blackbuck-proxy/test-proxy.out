@@ -1,0 +1,28 @@
+
+╔══════════════════════════════════════════════════╗
+║  Suprwise — Manual Login Mode                    ║
+╠══════════════════════════════════════════════════╣
+║  A browser will open. Log in to Blackbuck        ║
+║  manually (handle OTP, CAPTCHA, etc yourself).   ║
+║                                                  ║
+║  Once on the dashboard, come back here and       ║
+║  the server will auto-capture vehicle data.      ║
+╚══════════════════════════════════════════════════╝
+
+🌐 Opening https://fleet.blackbuck.com…
+   👉 LOG IN MANUALLY in the browser window
+   👉 Navigate to the fleet/vehicles dashboard
+   👉 Then test with: curl http://localhost:3000/api/fetch-blackbuck
+
+🔄 Attempting automated login…
+   📍 On login page, attempting to find "Login with password"…
+   ⏳ Waiting for session stabilization…
+   🔄 Navigating to GPS dashboard…
+
+🚀 Proxy running on http://localhost:3000
+   Test: curl http://localhost:3000/api/health
+   Fetch: curl http://localhost:3000/api/fetch-blackbuck
+   Debug: curl http://localhost:3000/api/debug/captured
+
+   👉 Log into Blackbuck in the browser, then use Suprwise!
+
