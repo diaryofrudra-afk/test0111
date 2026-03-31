@@ -52,7 +52,7 @@ let browser = null;
 let page = null;
 let vehicleCache = null;
 let cacheTimestamp = 0;
-const CACHE_TTL = 2000; // 2 seconds (real-time mode)
+const CACHE_TTL = 30000; // 30 seconds
 
 console.log('');
 console.log('╔══════════════════════════════════════════════════╗');
@@ -299,7 +299,7 @@ async function init() {
       const data = await page.evaluate(async (token) => {
         try {
           const res = await fetch(
-            'https://api-fms.blackbuck.com/fmsiot/api/v2/gps/tracking/details?page_number=0&page_size=200',
+            'https://api-fms.blackbuck.com/fmsiot/api/v2/gps/tracking/details?fleet_owner_id=5599426&status=All&truck_no=&map_view=true',
             { headers: { Authorization: token, Accept: 'application/json' } }
           );
           return res.ok ? await res.json() : { error: res.status };
@@ -338,7 +338,7 @@ async function init() {
       try {
         const data = await page.evaluate(async (token) => {
           const r = await fetch(
-            'https://api-fms.blackbuck.com/fmsiot/api/v2/gps/tracking/details?page_number=0&page_size=200',
+            'https://api-fms.blackbuck.com/fmsiot/api/v2/gps/tracking/details?fleet_owner_id=5599426&status=All&truck_no=&map_view=true',
             { headers: { Authorization: token, Accept: 'application/json' } }
           );
           return r.ok ? await r.json() : null;
