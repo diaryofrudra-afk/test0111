@@ -51,3 +51,4 @@ react code v1/.env.*
 suprwise-backend/.env
 suprwise-backend/data/
 suprwise-backend/suprwise.db
+blackbuck-proxy/puppeteer_data/
