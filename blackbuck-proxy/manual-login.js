@@ -142,7 +142,15 @@ async function init() {
           try {
             const data = JSON.parse(text);
             intercepted.push({ url, data: JSON.parse(JSON.stringify(data)), time: Date.now() });
+            if (intercepted.length > 50) intercepted.shift();
             console.log(`📡 Captured: ${url.slice(0, 80)}…`);
+            // Update cache immediately from intercepted data
+            const freshVehicles = extractVehicles().filter(v => v.reg);
+            if (freshVehicles.length > 0) {
+              vehicleCache = freshVehicles;
+              cacheTimestamp = Date.now();
+              console.log(`📍 Cache updated: ${freshVehicles.length} vehicles`);
+            }
           } catch (e) {}
         }
       }
