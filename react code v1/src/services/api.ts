@@ -36,7 +36,7 @@ export function clearToken(): void {
 
 // ── Core request helper ──────────────────────────────────────────────────────
 
-async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
+async function request<T>(method: string, path: string, body?: unknown, skipSessionCheck = false): Promise<T> {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
   const token = getToken();
   if (token) headers['Authorization'] = `Bearer ${token}`;
@@ -45,14 +45,21 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
     headers,
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
-  if (res.status === 401) {
+  if (res.status === 401 && !skipSessionCheck) {
     clearToken();
     window.location.reload();
     throw new Error('Session expired');
   }
   if (!res.ok) {
-    const text = await res.text();
-    throw new Error(text || `HTTP ${res.status}`);
+    let msg = `HTTP ${res.status}`;
+    try {
+      const data = await res.json();
+      msg = data?.detail || data?.message || JSON.stringify(data) || msg;
+    } catch {
+      const text = await res.text().catch(() => '');
+      if (text) msg = text;
+    }
+    throw new Error(msg);
   }
   if (res.status === 204) return undefined as T;
   return res.json() as Promise<T>;
@@ -99,10 +106,10 @@ export const api = {
 
   // Auth
   login(phone: string, password: string): Promise<AuthResponse> {
-    return request('POST', '/auth/login', { phone, password });
+    return request('POST', '/auth/login', { phone, password }, true);
   },
   register(phone: string, password: string, role: string, company_name?: string, tenant_code?: string): Promise<AuthResponse> {
-    return request('POST', '/auth/register', { phone, password, role, company_name, tenant_code });
+    return request('POST', '/auth/register', { phone, password, role, company_name, tenant_code }, true);
   },
   me(): Promise<MeResponse> {
     return request('GET', '/auth/me');
