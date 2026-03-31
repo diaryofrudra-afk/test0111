@@ -1,24 +1,12 @@
 {
   "name": "suprwise-backend",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Suprwise FastAPI Python backend - not a Node.js app",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc"
+    "start": "echo 'This is a Python/FastAPI backend. Run: uvicorn suprwise.main:app --host 0.0.0.0 --port 8000' && exit 1",
+    "test": "echo 'Run: pytest' && exit 1"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "devDependencies": {
-    "@types/node": "^25.5.0",
-    "@types/react": "^19.2.14",
-    "typescript": "^6.0.2"
-  },
-  "dependencies": {
-    "@types/react-dom": "^19.2.3",
-    "react": "^19.2.4",
-    "react-dom": "^19.2.4"
-  }
+  "license": "ISC"
 }
