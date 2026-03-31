@@ -28,6 +28,17 @@ const CHROMIUM_PATH =
   process.env.CHROMIUM_PATH ||
   '/root/.cache/ms-playwright/chromium-1194/chrome-linux/chrome';
 
+// Parse system proxy settings for Chromium
+function parseProxy(proxyUrl) {
+  if (!proxyUrl) return null;
+  try {
+    const m = proxyUrl.match(/^https?:\/\/([^:]+):([^@]+)@(.+)$/);
+    if (!m) return null;
+    return { username: m[1], password: m[2], server: m[3] };
+  } catch (e) { return null; }
+}
+const PROXY = parseProxy(process.env.http_proxy || process.env.HTTP_PROXY || process.env.https_proxy || process.env.HTTPS_PROXY);
+
 puppeteer.use(StealthPlugin());
 
 const app = express();
@@ -55,8 +66,19 @@ console.log('║  the server will auto-capture vehicle data.      ║');
 console.log('╚══════════════════════════════════════════════════╝');
 console.log('');
 
+// Start Express immediately so the server is always reachable
+const server = app.listen(PORT, () => {
+  console.log(`\n🚀 Proxy running on http://localhost:${PORT}`);
+  console.log(`   Health:  curl http://localhost:${PORT}/api/health`);
+  console.log(`   Fetch:   curl http://localhost:${PORT}/api/fetch-blackbuck`);
+  console.log(`   Token:   curl http://localhost:${PORT}/api/debug/token`);
+  console.log(`   Debug:   curl http://localhost:${PORT}/api/debug/captured`);
+  console.log('');
+  console.log('   👉 Log into Blackbuck in the browser, then use the endpoints above!');
+  console.log('');
+});
+
 async function init() {
-  // puppeteer-extra wraps puppeteer-core; pass executablePath explicitly
   puppeteer.use(StealthPlugin());
   browser = await puppeteer.launch({
     executablePath: CHROMIUM_PATH,
@@ -65,12 +87,22 @@ async function init() {
       '--no-sandbox',
       '--disable-setuid-sandbox',
       '--window-size=1280,900',
+      '--ignore-certificate-errors',
+      '--ignore-ssl-errors',
+      '--remote-debugging-port=9222',
+      ...(PROXY ? [`--proxy-server=http://${PROXY.server}`] : ['--no-proxy-server']),
       `--user-data-dir=${path.join(__dirname, 'puppeteer_data')}`, // Persistent session
     ],
     defaultViewport: { width: 1280, height: 900 },
   });
 
   page = await browser.newPage();
+
+  // Authenticate with system proxy if present
+  if (PROXY) {
+    await page.authenticate({ username: PROXY.username, password: PROXY.password });
+    console.log('🔐 Proxy authentication configured');
+  }
 
   let lastBlackbuckToken = null;
   const intercepted = [];
@@ -123,8 +155,13 @@ async function init() {
   console.log('   👉 Then test with: curl http://localhost:3000/api/fetch-blackbuck');
   console.log('');
 
-  await page.goto(BLACKBUCK_URL, { waitUntil: 'networkidle2', timeout: 60000 });
-  console.log('⏳ Waiting for manual login… Please log in to Blackbuck in the browser window.');
+  try {
+    await page.goto(BLACKBUCK_URL, { waitUntil: 'networkidle2', timeout: 60000 });
+    console.log('⏳ Waiting for manual login… Please log in to Blackbuck in the browser window.');
+  } catch (navErr) {
+    console.log(`⚠️  Browser navigation warning: ${navErr.message}`);
+    console.log('   Server is still running. Token will be captured once you navigate manually.');
+  }
 
   // ── Helpers ──
 
@@ -444,16 +481,6 @@ async function init() {
     }
   });
 
-  app.listen(PORT, () => {
-    console.log(`\n🚀 Proxy running on http://localhost:${PORT}`);
-    console.log(`   Health:  curl http://localhost:${PORT}/api/health`);
-    console.log(`   Fetch:   curl http://localhost:${PORT}/api/fetch-blackbuck`);
-    console.log(`   Token:   curl http://localhost:${PORT}/api/debug/token`);
-    console.log(`   Debug:   curl http://localhost:${PORT}/api/debug/captured`);
-    console.log('');
-    console.log('   👉 Log into Blackbuck in the browser, then use the endpoints above!');
-    console.log('');
-  });
 }
 
 init().catch(err => {
